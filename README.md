@@ -1,51 +1,39 @@
 ## Deploying on Local Machine
-## http://127.0.0.1:5000/
+##
 ![image](https://user-images.githubusercontent.com/56480620/102687956-4984fd00-4219-11eb-9d74-b825df49dc1a.png)
 
 # Zomato-Restaurant-Price-Prediction
 
-![zomato-infinity-dining-916x516](https://user-images.githubusercontent.com/56480620/102687335-4b988d00-4214-11eb-8544-109d1cf83a8f.jpg)
+![Macro-Defects-Detection-2](https://user-images.githubusercontent.com/56480620/102691586-9249af80-4233-11eb-8051-2bfe5631ba84.jpg)
 
 
 
 ## 1. Business Problem
 
-## 1.1 Problem Description
+## 1.1 Data Description
 
-Restaurants from all over the world can be found here in Bengaluru. From United States to Japan, Russia to Antarctica, you get all type of cuisines here. Delivery, Dine-out, Pubs, Bars, Drinks,Buffet, Desserts you name it and Bengaluru has it. Bengaluru is best place for foodies. The number of restaurant are increasing day by day. Currently which stands at approximately 12,000 restaurants. With such an high number of restaurants. This industry hasn't been saturated yet. And new restaurants are opening every day. However it has become difficult for them to compete with already established restaurants. The key issues that continue to pose a challenge to them include high real estate costs, rising food costs, shortage of quality manpower, fragmented supply chain and over-licensing. This Zomato data aims at analysing demography of the location. Most importantly it will help new restaurants in deciding their theme, menus, cuisine, cost etc for a particular location. It also aims at finding similarity between neighborhoods of Bengaluru on the basis of food. 
-
-1.	serial: The index/serial number
-2.	URL : The URL for the restaurant 
-3.	address:  The address of the restaurant.
-4.	name: The name of the restaurant.
-5.	online_order: Does the restaurant allow online order(Yes/No)
-6.	book_table: Does the restaurant allow table booking(Yes/No)
-7.	rate: Restaurant rating out of 5.
-8.	votes: The number of votes for the restaurant.
-9.	Phone: Resyaurant contact number
-10.	Location: Location of the restaurant
-11.	rest_type:Type of the restaurant(Casual Dining, Café etc.).
-12.	dish_liked: The Most liked dishes in the restaurant(Pasta, Lunch Buffet, Masala Papad etc.)
-
+The client will send data in multiple sets of files in batches at a given location. Data will contain Wafer names and 590 columns of different sensor values for each wafer. The last column will have the "Good/Bad" value for each wafer.
+"Good/Bad" column will have two unique values +1 and -1.  
+"+1" represents Bad wafer.
+"-1" represents Good Wafer. 
+Apart from training files, we also require a "schema" file from the client, which contains all the relevant information about the training files such as:
+Name of the files, Length of Date value in FileName, Length of Time value in FileName, Number of Columns, Name of the Columns, and their datatype. 
 
 ## 1.2 Problem Statement
 
-To build a regression model to predict the cost of restaurant for two people based on the given indicators in the training data. 
+To build a classification methodology to predict the quality of wafer sensors based on the given training data. 
 
 ## 1.3 Real world/Business Objectives
 
-We need to predict price based on different parameters like Average_cost for two people, Online Order available, foods,menu list, most liked dishes etc features.
+We need to clasify based on different parameters and features.
 
 ## 1.4 Machine Learning Formulation
-Here we suppose to predicted rating of restaurant, so it is basically **Regression** problem.
+Here we suppose to classify chip, so it is basically **Classification** problem.
 
 ## 1.5 Perfomance Metric
-We will try to reduce Mean Square Error ie **MSE** as minimum as possible. So it is **Regression** problem reducing **MSE**.
+We will be using confusion matrix as results. So it is **Classification** problem reducing **CM**.
 
-## 2. Data Acquire:
-aource : https://www.kaggle.com/himanshupoddar/zomato-bangalore-restaurants
-
-## 2.2 Data Validation 
+## 2 Data Validation 
 In this step, we perform different sets of validation on the given set of training files.  
 1.	 Name Validation- We validate the name of the files based on the given name in the schema file. We have created a regex pattern as per the name given in the schema file to use for validation. After validating the pattern in the name, we check for the length of date in the file name as well as the length of time in the file name. If all the values are as per requirement, we move such files to "Good_Data_Folder" else we move such files to "Bad_Data_Folder."
 
@@ -63,6 +51,15 @@ In this step, we perform different sets of validation on the given set of traini
 1) Database Creation and connection - Create a database with the given name passed. If the database is already created, open the connection to the database. 
 2) Table creation in the database - Table with name - "Good_Data", is created in the database for inserting the files in the "Good_Data_Folder" based on given column names and datatype in the schema file. If the table is already present, then the new table is not created and new files are inserted in the already present table as we want training to be done on new as well as old training files.     
 3) Insertion of files in the table - All the files in the "Good_Data_Folder" are inserted in the above-created table. If any file has invalid data type in any of the columns, the file is not loaded in the table and is moved to "Bad_Data_Folder".
+
+## Model Training
+1) Data Export from Db - The data in a stored database is exported as a CSV file to be used for model training.
+2) Data Preprocessing   
+   a) Check for null values in the columns. If present, impute the null values using the KNN imputer.
+   b) Check if any column has zero standard deviation, remove such columns as they don't give any information during model training.
+3) Clustering - KMeans algorithm is used to create clusters in the preprocessed data. The optimum number of clusters is selected by plotting the elbow plot, and for the dynamic selection of the number of clusters, we are using "KneeLocator" function. The idea behind clustering is to implement different algorithms
+   To train data in different clusters. The Kmeans model is trained over preprocessed data and the model is saved for further use in prediction.
+4) Model Selection - After clusters are created, we find the best model for each cluster. We are using two algorithms, "Random Forest" and "XGBoost". For each cluster, both the algorithms are passed with the best parameters derived from GridSearch. We calculate the AUC scores for both models and select the model with the best score. Similarly, the model is selected for each cluster. All the models for every cluster are saved for use in prediction.
 
 ## Prediction
 1) Data Export from Db - The data in the stored database is exported as a CSV file to be used for prediction.
