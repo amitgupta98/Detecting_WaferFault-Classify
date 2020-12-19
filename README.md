@@ -2,7 +2,7 @@
 ##
 ![image](https://user-images.githubusercontent.com/56480620/102687956-4984fd00-4219-11eb-9d74-b825df49dc1a.png)
 
-# Zomato-Restaurant-Price-Prediction
+# WaferFault Detection with batcg size of data
 
 ![Macro-Defects-Detection-2](https://user-images.githubusercontent.com/56480620/102691586-9249af80-4233-11eb-8051-2bfe5631ba84.jpg)
 
